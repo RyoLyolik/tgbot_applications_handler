@@ -6,8 +6,8 @@ on:
 
 env:
   tg_token: ${{ secrets.TG_TOKEN }}
-  sender_email: ${{ variables.SENDER_EMAIL }}
-  recipient_email: ${{ variables.RECIPIENT_EMAIL }}
+  sender_email: $SENDER_EMAIL
+  recipient_email: $RECIPIENT_EMAIL
   email_password: ${{ secrets.EMAIL_PASSWORD }}
 
 jobs:
