@@ -1,0 +1,20 @@
+name: Workflow
+
+on:
+  push:
+    branches: [main]
+
+env:
+  tg_token: ${{ secrets.TG_TOKEN }}
+  sender_email: ${{ variables.SENDER_EMAIL }}
+  recipient_email: ${{ variables.RECIPIENT_EMAIL }}
+  email_password: ${{ secrets.EMAIL_PASSWORD }}
+
+jobs:
+  run:
+    runs-on: self-hosted
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: run
+        run: docker compose up
