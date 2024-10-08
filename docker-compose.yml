@@ -12,6 +12,10 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     networks:
       - general_network
+    mem_limit: 70M
+    mem_reservation: 50M
+    cpus: "0.4"
+
   bot:
     build:
       context: ./src
@@ -24,6 +28,10 @@ services:
       - email_password=${email_password}
     networks:
       - general_network
+    mem_limit: 30M
+    mem_reservation: 20M
+    cpus: "0.5"
+
 networks:
   general_network:
     driver: bridge
