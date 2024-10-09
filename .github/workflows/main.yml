@@ -55,19 +55,17 @@ jobs:
         target: /home/bicho/deployed_projects/tgbot_application
 
     - name: Restart containers on VM
-      uses: appleboy/ssh-action@v0.1.4
+      uses: appleboy/ssh-action@v1.1.0
       with:
         host: ${{ secrets.VM_HOST }}
         username: ${{ secrets.VM_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
         port: ${{ secrets.VM_SSH_PORT }}
+        key: ${{ secrets.VM_SSH_KEY }}
         script: |
           cd /home/bicho/deployed_projects/tgbot_application
           touch .env
-          echo '
-          tg_token=${{ secrets.TG_TOKEN }}
-          sender_email=$SENDER_EMAIL
-          recipient_email=$RECIPIENT_EMAIL
-          email_password=${{ secrets.EMAIL_PASSWORD }}
-          ' > .env
+          echo 'tg_token=${{ secrets.TG_TOKEN }}' > .env
+          echo 'sender_email=$SENDER_EMAIL' >> .env
+          echo 'recipient_email=$RECIPIENT_EMAIL' >> .env
+          echo 'email_password=${{ secrets.EMAIL_PASSWORD }}' >> .env
           make ENVIRONMENT=production up
