@@ -1,9 +1,7 @@
 version: '3.8'
 services:
   redis:
-    build:
-      context: ./redis
-      dockerfile: dockerfile
+    image: ${tgbot_application_redis_image}
     container_name: redis
     ports:
       - "6379:6379"
@@ -17,9 +15,7 @@ services:
     cpus: "0.4"
 
   bot:
-    build:
-      context: ./src
-      dockerfile: dockerfile
+    image: ${tgbot_application_image}
     container_name: bot
     environment:
       - tg_token=${tg_token}
