@@ -31,7 +31,7 @@ def send_user_request(user: User):
 
     with smtplib.SMTP('smtp.mail.ru', 587) as server:
         server.starttls()
-        server.login(sender_email, application_password)
+        server.login(user=sender_email, password=application_password)
         server.sendmail(sender_email, recipient_email, msg.as_string())
 
 
