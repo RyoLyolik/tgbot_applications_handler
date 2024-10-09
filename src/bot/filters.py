@@ -1,7 +1,8 @@
 from aiogram.filters import BaseFilter
+from aiogram.filters.callback_data import CallbackData
 from aiogram.types import Message
 
-from validators import States
+from validators import States, Category
 from utils import get_user
 
 
@@ -19,3 +20,8 @@ class StatesFilter(BaseFilter):
             user = await get_user(user_id)
             return user.state.value in self.state
         return False
+
+
+class RequestCallbackFilter(CallbackData, prefix='request'):
+    context: str
+    category: Category = Category.default

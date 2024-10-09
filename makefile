@@ -10,7 +10,7 @@ ifeq ($(ENVIRONMENT), production)
 	-docker rm redis
 	export tgbot_application_redis_image="ryoly0/tg_bot_application_redis:latest" && \
 	export tgbot_application_image="ryoly0/tg_bot_application:latest" && \
-	docker compose pull
+	docker compose pull && \
 	docker compose up -d --build
 else
 	@echo "Running in development..."
@@ -27,4 +27,14 @@ else
 endif
 
 down:
+ifeq ($(ENVIRONMENT), production)
+	@echo "Stopping in production..."
+	export tgbot_application_redis_image="ryoly0/tg_bot_application_redis:latest" && \
+	export tgbot_application_image="ryoly0/tg_bot_application:latest" && \
 	docker compose down
+else
+	@echo "Stopping in development..."
+	export tgbot_application_redis_image="tg_bot_application_redis:latest" && \
+	export tgbot_application_image="tg_bot_application:latest" && \
+	docker compose down
+endif

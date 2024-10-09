@@ -9,9 +9,9 @@ from aiogram.filters.command import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from constant import delta, KeyboardButtons, user_data_template
+from constant import delta, KeyboardButtons, user_data_template, start_answer_text, end_answer_text
 from exceptions import ValidationException
-from filters import StatesFilter
+from filters import StatesFilter, RequestCallbackFilter
 from utils import code_user, send_user_request, save_user, get_user
 from validators import User, States, ValidationException, Category
 
@@ -24,16 +24,23 @@ bot = Bot(token=os.getenv('tg_token'))
 async def cmd_start(message: Message):
     user_id = str(message.from_user.id)
     user = await get_user(user_id)
-    user.state.value = States.default
+    user.state.value = States.start
     await save_user(user)
-    builder = InlineKeyboardBuilder([[KeyboardButtons.create_reqeust]])
-    await message.answer('Желаете оставьте заявку?', reply_markup=builder.as_markup())
+    builder = InlineKeyboardBuilder([
+        [KeyboardButtons.init_set_category_L2H2],
+        [KeyboardButtons.init_set_category_L2H3],
+    ])
+    await message.answer(start_answer_text, reply_markup=builder.as_markup(), parse_mode='HTML')
 
 
-@dp.callback_query(F.data=='create_request')
-async def start_request(callback: CallbackQuery):
+@dp.callback_query(        
+    RequestCallbackFilter.filter(F.context=='make')
+)
+async def start_request(callback: CallbackQuery, callback_data: RequestCallbackFilter):
     user_id = str(callback.from_user.id)
     user = await get_user(user_id)
+    if user.state.value == States.start:
+        user.category = callback_data.category
     user.state.value = States.default
     await save_user(user)
     answer_text = '<b>Ваша заявка</b>\n' + user_data_template.format(**code_user(user))
@@ -64,8 +71,8 @@ async def change_userdata(callback: CallbackQuery):
             answer_text = f'Введите ФИО\nТекущее ФИО: <code>{user.fullname}</code>'
         case States.change_category:
             answer_text = f'Выберите категорию\nТекущая категория: <code>{user.category}</code>'
-            keyboard.append([KeyboardButtons.set_category_HT])
-            keyboard.append([KeyboardButtons.set_category_MT])
+            keyboard.append([KeyboardButtons.set_category_L2H2])
+            keyboard.append([KeyboardButtons.set_category_L2H3])
         case States.change_company:
             answer_text = f'Введите название компании\nТекущая компания: <code>{user.company}</code>'
         case States.change_inn:
@@ -132,14 +139,17 @@ async def changing_userdata(message: Message):
         pass
 
 
-@dp.callback_query(F.data.in_(Category._member_names_))
-async def changing_category(callback: CallbackQuery):
+@dp.callback_query(
+        RequestCallbackFilter.filter(F.context=='chng'),
+        RequestCallbackFilter.filter(F.category.in_((Category.L2H2, Category.L2H3)))
+)
+async def changing_category(callback: CallbackQuery, callback_data: RequestCallbackFilter):
     user = await get_user(callback.from_user.id)
-    user.category = Category(callback.data)
+    user.category = Category(callback_data.category)
     await save_user(user)
     keyboard = [
-        [KeyboardButtons.set_category_HT],
-        [KeyboardButtons.set_category_MT],
+        [KeyboardButtons.set_category_L2H2],
+        [KeyboardButtons.set_category_L2H3],
         [KeyboardButtons.done],
     ]
     builder = InlineKeyboardBuilder(keyboard)
@@ -163,17 +173,17 @@ async def sending_request(callback: CallbackQuery):
     empty_fields = user.get_empty_fields()
     if datetime.timestamp(datetime.now()) - user.timestamp < delta:
         left_seconds = delta - (datetime.timestamp(datetime.now()) - user.timestamp)
-        answer_text = f'Вы уже отправляли заявку за последнюю минуту, подождите {timedelta(seconds=int(left_seconds))}'
+        answer_text = f'Вы уже отправляли заявку в последнее время, подождите {timedelta(seconds=int(left_seconds))}'
         keyboard = [[KeyboardButtons.ok]]
     elif empty_fields:
         answer_text = '❗️ Заявка заполнена не полностью\nНезаполненные поля:\n'
-        answer_text += '\n'.join(empty_fields)
+        answer_text += '\n'.join(map(lambda field: ' • '+field, empty_fields))
         keyboard = [[KeyboardButtons.fill_request]]
     else:
         send_user_request(user)
         user.timestamp = datetime.now().timestamp()
         await save_user(user)
-        answer_text = '✅ Заявка успешно отправлена'
+        answer_text = end_answer_text
     builder = InlineKeyboardBuilder(keyboard)
     try:
         await bot.edit_message_text(

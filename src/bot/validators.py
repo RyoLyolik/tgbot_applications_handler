@@ -6,6 +6,7 @@ from exceptions import ValidationException
 
 class States(str, Enum):
     default = ''
+    start = 'start'
     change_fullname = 'change_fullname'
     change_category = 'change_category'
     change_company = 'change_company'
@@ -24,8 +25,12 @@ class UserState(BaseModel):
 
 class Category(str, Enum):
     default = '-'
-    HT = 'HT'
-    MT = 'MT'
+    L2H2 = 'Normax One L2H2 (высота – 2 375 мм)'
+    L2H3 = 'Normax One L2H3 (высота – 2 590 мм)'
+
+    @classmethod
+    def values(cls) -> list:
+        return list(map(lambda el: cls._member_map_[el]._value_, cls._member_names_))
 
 
 class User(BaseModel):

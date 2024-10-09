@@ -5,13 +5,18 @@ from email.mime.text import MIMEText
 from constant import user_data_template
 import json
 from redis_client import RedisConnectionManager
+from pydantic import ValidationError
 
 
 async def get_user(user_id: str) -> User:
     redis = await RedisConnectionManager.get_or_create_connection()
     user_data = json.loads(await redis.get(user_id) or '{}')
     user_data.update(id=user_id)
-    return User(**user_data)
+    try:
+        return User(**user_data)
+    except ValidationError:
+        return User(id=user_id)
+
 
 async def save_user(user: User):
     redis = await RedisConnectionManager.get_or_create_connection()
