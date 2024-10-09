@@ -20,7 +20,7 @@ dp = Dispatcher()
 bot = Bot(token=os.getenv('tg_token'))
 
 
-@dp.message(Command("start"))
+@dp.message(Command('start'))
 async def cmd_start(message: Message):
     user_id = str(message.from_user.id)
     user = await get_user(user_id)

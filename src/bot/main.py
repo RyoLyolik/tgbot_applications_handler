@@ -9,5 +9,5 @@ async def main():
     await RedisConnectionManager.close_connection()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     asyncio.run(main())
