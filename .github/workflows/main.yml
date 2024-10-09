@@ -44,7 +44,7 @@ jobs:
         port: ${{ secrets.VM_SSH_PORT }}
         key: ${{ secrets.VM_SSH_KEY }}
         source: "./docker-compose.yml"
-        target: $ProjectPath
+        target: "$ProjectPath"
 
     - name: Copy Makefile to VM
       uses: appleboy/scp-action@v0.1.3
@@ -54,7 +54,7 @@ jobs:
         port: ${{ secrets.VM_SSH_PORT }}
         key: ${{ secrets.VM_SSH_KEY }}
         source: "./makefile"
-        target: $ProjectPath
+        target: "$ProjectPath"
 
     - name: Restart containers on VM
       uses: appleboy/ssh-action@v0.1.4
@@ -64,7 +64,7 @@ jobs:
         key: ${{ secrets.VM_SSH_KEY }}
         port: ${{ secrets.VM_SSH_PORT }}
         script: |
-          cd $ProjectPath
+          cd "$ProjectPath"
           touch .env
           echo '
           tg_token=${{ secrets.TG_TOKEN }}
