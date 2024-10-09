@@ -16,5 +16,7 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - name: run
-        run: docker compose up -d --build
+      - name: run docker-compose
+        uses: sudo-bot/action-docker-compose@latest
+        with:
+            cli-args: "up -d --build"
