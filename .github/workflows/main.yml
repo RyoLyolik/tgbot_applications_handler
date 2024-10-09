@@ -28,11 +28,10 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/tg_bot_application:latest
 
   deploy:
-    env:
-      project_path: /home/bicho/deployed_projects/tgbot_application
     runs-on: ubuntu-latest
+    env:
+      ProjectPath: /home/bicho/deployed_projects/tgbot_application
     needs: build
-
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -45,7 +44,7 @@ jobs:
         port: ${{ secrets.VM_SSH_PORT }}
         key: ${{ secrets.VM_SSH_KEY }}
         source: "./docker-compose.yml"
-        target: $project_path
+        target: $ProjectPath
 
     - name: Copy Makefile to VM
       uses: appleboy/scp-action@v0.1.3
@@ -55,7 +54,7 @@ jobs:
         port: ${{ secrets.VM_SSH_PORT }}
         key: ${{ secrets.VM_SSH_KEY }}
         source: "./makefile"
-        target: $project_path
+        target: $ProjectPath
 
     - name: Restart containers on VM
       uses: appleboy/ssh-action@v0.1.4
@@ -65,7 +64,7 @@ jobs:
         key: ${{ secrets.VM_SSH_KEY }}
         port: ${{ secrets.VM_SSH_PORT }}
         script: |
-          cd $project_path
+          cd $ProjectPath
           touch .env
           echo '
           tg_token=${{ secrets.TG_TOKEN }}
