@@ -5,7 +5,8 @@ on:
     branches: [main]
 
 env:
-  project_path: $project_path
+  project_path: /home/bicho/deployed_projects/tgbot_application
+
 jobs:
   build:
     runs-on: ubuntu-latest
